@@ -1,0 +1,23 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Build artifacts and package info
+*.egg-info/
+dist/
+build/
+*.whl
+
+# Pip logs and environment files
+pip-log.txt
+pip-delete-this-directory.txt
+.env
+.env.*
+
+# Testing and coverage
+.pytest_cache/
+.mypy_cache/
+.coverage
