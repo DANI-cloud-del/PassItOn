@@ -2,11 +2,254 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PassItOn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PassItOn - Share What You Don't Need</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='carousel.css') }}">
+    <!-- No carousel-related CSS in the style tag -->
 </head>
 <body>
-    <!-- <h1>Welcome {{ user }}</h1> -->
-    <p class="motto">Give what you don’t need. Get what you do.</p>
+    <!-- Initial loading screen with motto -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="motto-container">
+            <p class="motto">Give what you don't need. Get what you do.</p>
+        </div>
+    </div>
+    
+    <!-- Header with Navbar -->
+    <header>
+        <div class="logo">
+            <span>PassItOn</span>
+        </div>
+        
+        <div class="search-container">
+            <input type="text" class="search-bar" placeholder="Search for items...">
+        </div>
+        
+        <div class="nav-icons">
+            <button class="icon-btn" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+            
+            <button class="icon-btn">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge">3</span>
+            </button>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <section class="hero">
+            <h1>Welcome to PassItOn</h1>
+            <p>A community marketplace for sharing items among hostel students</p>
+        </section>
+        
+        <!-- 3D Carousel Section - Style comes from carousel.css only -->
+        <div class="carousel-container" id="carouselContainer">
+            <!-- Carousel cards will be loaded here -->
+            
+            <button class="carousel-nav-btn prev" id="carouselPrev">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="carousel-nav-btn next" id="carouselNext">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            
+            <div class="carousel-dots" id="carouselDots">
+                <!-- Navigation dots will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Carousel data for hostel item sharing
+        const carouselData = [
+            {
+                id: 1,
+                title: "Textbooks & Study Materials",
+                description: "Share your used textbooks, notes, and study guides with fellow students.",
+                tags: ["Education", "Academic", "Books"],
+                icon: "book",
+                color: "#4fbbd6"
+            },
+            {
+                id: 2,
+                title: "Stationery Supplies",
+                description: "Exchange pens, notebooks, and other essential academic supplies.",
+                tags: ["Study", "Essentials", "School"],
+                icon: "pencil-alt",
+                color: "#8e44ad"
+            },
+            {
+                id: 3,
+                title: "Kitchen Utensils",
+                description: "Share pots, pans, and other kitchen items you no longer need.",
+                tags: ["Cooking", "Kitchen", "Essentials"],
+                icon: "utensils",
+                color: "#e74c3c"
+            },
+            {
+                id: 4,
+                title: "Electronics & Gadgets",
+                description: "Pass on electronics like calculators, lamps, or chargers.",
+                tags: ["Tech", "Gadgets", "Electronics"],
+                icon: "laptop",
+                color: "#2ecc71"
+            },
+            {
+                id: 5,
+                title: "Room Decor",
+                description: "Exchange posters, plants, and other decorative items for your room.",
+                tags: ["Decor", "Home", "Comfort"],
+                icon: "couch",
+                color: "#f39c12"
+            },
+            {
+                id: 6,
+                title: "Sports Equipment",
+                description: "Share sports gear like cricket bats, footballs, or badminton rackets.",
+                tags: ["Fitness", "Sports", "Recreation"],
+                icon: "basketball-ball",
+                color: "#e67e22"
+            }
+        ];
+
+        // Initialize after DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                const loadingScreen = document.getElementById('loadingScreen');
+                const mainContent = document.getElementById('mainContent');
+                loadingScreen.classList.add('fade-out');
+                setTimeout(function() {
+                    mainContent.classList.add('visible');
+                    initCarousel();
+                }, 500);
+            }, 4000);
+            
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = themeToggle.querySelector('i');
+            
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                if (document.body.classList.contains('dark-mode')) {
+                    themeIcon.classList.remove('fa-moon');
+                    themeIcon.classList.add('fa-sun');
+                } else {
+                    themeIcon.classList.remove('fa-sun');
+                    themeIcon.classList.add('fa-moon');
+                }
+            });
+            
+            const searchBar = document.querySelector('.search-bar');
+            searchBar.addEventListener('focus', () => {
+                searchBar.placeholder = '';
+            });
+            searchBar.addEventListener('blur', () => {
+                if (searchBar.value === '') {
+                    searchBar.placeholder = 'Search for items...';
+                }
+            });
+        });
+
+        // Carousel functionality
+        function initCarousel() {
+            const carouselContainer = document.getElementById('carouselContainer');
+            const carouselDots = document.getElementById('carouselDots');
+            const carouselPrev = document.getElementById('carouselPrev');
+            const carouselNext = document.getElementById('carouselNext');
+            
+            let currentIndex = 0;
+            let autoRotateInterval;
+            let cards = [];
+            
+            carouselData.forEach((item, index) => {
+                const carouselCard = document.createElement('div');
+                carouselCard.classList.add('carousel-card');
+                if (index === 0) {
+                    carouselCard.classList.add('active');
+                } else if (index === 1) {
+                    carouselCard.classList.add('next');
+                } else if (index === carouselData.length - 1) {
+                    carouselCard.classList.add('prev');
+                } else {
+                    carouselCard.classList.add('inactive');
+                }
+                carouselCard.innerHTML = `
+                    <div class="carousel-img" style="background-color: ${item.color}">
+                        <i class="fas fa-${item.icon}"></i>
+                    </div>
+                    <div class="carousel-content">
+                        <h3 class="carousel-title">${item.title}</h3>
+                        <p class="carousel-desc">${item.description}</p>
+                        <div class="carousel-tags">
+                            ${item.tags.map(tag => `<span class="carousel-tag">${tag}</span>`).join('')}
+                        </div>
+                        <a href="#" class="carousel-button">Browse Items</a>
+                    </div>
+                `;
+                carouselContainer.appendChild(carouselCard);
+                cards.push(carouselCard);
+                const dot = document.createElement('button');
+                dot.classList.add('carousel-dot');
+                if (index === 0) dot.classList.add('active');
+                dot.addEventListener('click', () => {
+                    goToSlide(index);
+                });
+                carouselDots.appendChild(dot);
+            });
+            
+            carouselPrev.addEventListener('click', () => {
+                goToSlide(currentIndex - 1);
+            });
+            carouselNext.addEventListener('click', () => {
+                goToSlide(currentIndex + 1);
+            });
+            startAutoRotation();
+            carouselContainer.addEventListener('mouseenter', () => {
+                clearInterval(autoRotateInterval);
+            });
+            carouselContainer.addEventListener('mouseleave', () => {
+                startAutoRotation();
+            });
+            
+            function goToSlide(index) {
+                if (index < 0) index = carouselData.length - 1;
+                if (index >= carouselData.length) index = 0;
+                currentIndex = index;
+                updateCarousel();
+            }
+            function updateCarousel() {
+                const dots = document.querySelectorAll('.carousel-dot');
+                cards.forEach((card, index) => {
+                    card.classList.remove('active', 'next', 'prev', 'inactive');
+                    if (index === currentIndex) {
+                        card.classList.add('active');
+                    } else if (index === (currentIndex + 1) % carouselData.length) {
+                        card.classList.add('next');
+                    } else if (index === (currentIndex - 1 + carouselData.length) % carouselData.length) {
+                        card.classList.add('prev');
+                    } else {
+                        card.classList.add('inactive');
+                    }
+                });
+                dots.forEach((dot, index) => {
+                    if (index === currentIndex) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            }
+            function startAutoRotation() {
+                clearInterval(autoRotateInterval);
+                autoRotateInterval = setInterval(() => {
+                    goToSlide(currentIndex + 1);
+                }, 4000);
+            }
+        }
+    </script>
 </body>
 </html>
