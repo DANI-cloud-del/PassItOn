@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shopping Cart - PassItOn</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <style>
+    /* No custom navbar style here - use the site-wide nav */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    h1 {
+      margin: 2.5rem auto 2rem auto;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 2.3rem;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+    .main-content-carts {
+      max-width: 950px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      box-shadow: 0 6px 24px var(--shadow);
+      border-radius: 15px;
+      padding: 24px 28px 38px 28px;
+      display: flex;
+      flex-direction: row;
+      gap: 38px;
+      border: 1.5px solid var(--primary);
+    }
+
+    .cart-section, .wishlist-section {
+      flex: 1 1 0;
+      min-width: 300px;
+    }
+    .wishlist-section {
+      margin-left: 16px;
+    }
+    .section-title {
+      font-size: 1.3rem;
+      color: var(--primary);
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: .5px;
+    }
+    .cart-item, .wishlist-item {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 22px;
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 16px 18px;
+      box-shadow: 0 2px 10px var(--shadow);
+      border: 1px solid var(--primary);
+    }
+    .cart-item:last-child,
+    .wishlist-item:last-child {
+      margin-bottom: 0;
+    }
+    .item-image {
+      width: 68px;
+      height: 68px;
+      border-radius: 8px;
+      object-fit: cover;
+      box-shadow: 0 2px 8px var(--shadow);
+      background: var(--bg);
+    }
+    .item-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .item-title {
+      font-size: 1.09rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .item-price {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 3px;
+    }
+    .quantity-btn {
+      background: var(--primary);
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+      padding: 6px 11px;
+      font-size: 1rem;
+      border-radius: 7px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .quantity-btn:hover {
+      background: var(--accent);
+      transform: translateY(-2px);
+    }
+    .btn-action {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.01rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 9px;
+      border-radius: 6px;
+    }
+    .btn-action:hover {
+      transform: translateY(-2px);
+    }
+    .btn-action.wishlist { 
+      color: #e943b4;
+      background: rgba(233, 67, 180, 0.1);
+    }
+    .btn-action.wishlist:hover {
+      background: rgba(233, 67, 180, 0.2);
+    }
+    .btn-action.remove { 
+      color: #e74c3c;
+      background: rgba(231, 76, 60, 0.1);
+    }
+    .btn-action.remove:hover {
+      background: #e74c3c;
+      color: #fff;
+    }
+    #cartTotal {
+      margin-top: 44px;
+      text-align: right;
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: var(--primary);
+    }
+    .checkout-btn {
+      margin: 25px auto 0 auto;
+      display: block;
+      background: var(--primary);
+      color: #fff;
+      font-size: 1.17rem;
+      font-weight: 600;
+      border: none;
+      padding: 16px 44px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.25s;
+      box-shadow: 0 2px 12px var(--shadow);
+      letter-spacing: .5px;
+    }
+    .checkout-btn:hover { 
+      background: var(--accent);
+      transform: translateY(-3px);
+      box-shadow: 0 4px 15px var(--shadow);
+    }
+    .empty-cart, .empty-wishlist {
+      margin: 70px 0;
+      text-align: center;
+      font-size: 1.12rem;
+      opacity: 0.85;
+      color: var(--text);
+    }
+    @media (max-width: 950px) {
+      .main-content-carts { flex-direction: column; gap: 18px;}
+      .wishlist-section { margin-left: 0;}
+    }
+
+    /* Dark mode specific overrides */
+    .dark-mode .cart-item,
+    .dark-mode .wishlist-item {
+        background: var(--card-bg);
+        border: 1px solid var(--primary);
+    }
+
+    .dark-mode .item-title {
+        color: var(--text);
+    }
+
+    .dark-mode .item-price {
+        color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+  {% include '_navbar.html' %}
+
+  <h1>Your Shopping Cart</h1>
+
+  <div class="main-content-carts">
+    <section class="cart-section">
+      <div class="section-title">Cart</div>
+      <div id="cartItems"></div>
+      <div id="cartTotal"></div>
+      <button class="checkout-btn" onclick="proceedToCheckout()">Proceed to Checkout</button>
+    </section>
+    <section class="wishlist-section">
+      <div class="section-title">Wishlist</div>
+      <div id="wishlistItems"></div>
+    </section>
+  </div>
+
+<script>
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+
+function saveCart() {
+  localStorage.setItem('cart', JSON.stringify(cart));
+}
+function saveWishlist() {
+  localStorage.setItem('wishlist', JSON.stringify(wishlist));
+}
+function renderCart() {
+  const cartItems = document.getElementById('cartItems');
+  const cartTotal = document.getElementById('cartTotal');
+  let total = 0;
+  cartItems.innerHTML = '';
+  if (cart.length === 0) {
+    cartItems.innerHTML = '<div class="empty-cart">Your cart is empty.</div>';
+    cartTotal.textContent = '';
+    updateCartCount();
+    return;
+  }
+  cart.forEach(item => {
+    total += item.price * item.quantity;
+    const div = document.createElement('div');
+    div.className = 'cart-item';
+    div.innerHTML = `
+        <img src="${item.image}" alt="${item.title}" class="item-image" />
+        <div class="item-details">
+          <div class="item-title">${item.title}</div>
+          <div class="item-price">₹${item.price.toFixed(2)}</div>
+          <div class="quantity-controls">
+            <button class="quantity-btn" onclick="changeQuantity('${item.title}', -1)"><i class="fas fa-minus"></i></button>
+            <span style="min-width: 30px; display:inline-block; text-align:center;">${item.quantity}</span>
+            <button class="quantity-btn" onclick="changeQuantity('${item.title}', 1)"><i class="fas fa-plus"></i></button>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px; align-items: flex-end; justify-content:center;">
+          <button class="btn-action wishlist${wishExists(item.title)?' active':''}" onclick="toggleWishlist('${item.title}')">
+            <i class="fas fa-heart"></i> Wishlist
+          </button>
+          <button class="btn-action remove" onclick="removeFromCart('${item.title}')">
+            <i class="fas fa-trash-alt"></i> Remove
+          </button>
+        </div>
+    `;
+    cartItems.appendChild(div);
+  });
+  cartTotal.textContent = `Total: ₹${total.toFixed(2)}`;
+  updateCartCount();
+}
+function changeQuantity(title, delta) {
+  const idx = cart.findIndex(i => i.title === title);
+  if (idx === -1) return;
+  cart[idx].quantity = Math.max(1, cart[idx].quantity + delta);
+  saveCart();
+  renderCart();
+}
+function removeFromCart(title) {
+  cart = cart.filter(item => item.title !== title);
+  saveCart();
+  renderCart();
+}
+function wishExists(title) {
+  return wishlist.find(item => item.title === title);
+}
+function toggleWishlist(title) {
+  // move between cart/wishlist or add if not present
+  let cartIdx = cart.findIndex(i => i.title === title);
+  let wishIdx = wishlist.findIndex(i => i.title === title);
+  if (cartIdx !== -1 && wishIdx === -1) {
+    // move from cart to wishlist
+    wishlist.push(cart[cartIdx]);
+    cart.splice(cartIdx, 1);
+  } else if (wishIdx !== -1) {
+    // move from wishlist to cart
+    cart.push(wishlist[wishIdx]);
+    wishlist.splice(wishIdx, 1);
+  }
+  saveCart(); saveWishlist();
+  renderCart();
+  renderWishlist();
+}
+function renderWishlist() {
+  const wishItems = document.getElementById('wishlistItems');
+  wishItems.innerHTML = '';
+  if (wishlist.length === 0) {
+    wishItems.innerHTML = '<div class="empty-wishlist">No items in wishlist.</div>';
+    return;
+  }
+  wishlist.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'wishlist-item';
+    div.innerHTML = `
+      <img src="${item.image}" alt="${item.title}" class="item-image" />
+      <div class="item-details">
+        <div class="item-title">${item.title}</div>
+        <div class="item-price">₹${item.price.toFixed(2)}</div>
+      </div>
+      <button class="btn-action wishlist active" onclick="toggleWishlist('${item.title}')">
+         <i class="fas fa-plus"></i> Move to Cart
+      </button>
+    `;
+    wishItems.appendChild(div);
+  });
+}
+function updateCartCount() {
+  const cartCount = document.getElementById('cartCount');
+  if (!cartCount) return;
+  let count = cart.reduce((sum, i) => sum + i.quantity, 0);
+  cartCount.textContent = count > 0 ? count : '';
+  cartCount.style.display = count > 0 ? 'flex' : 'none';
+  // Animate badge pop!
+  cartCount.classList.add('pop');
+  setTimeout(() => cartCount.classList.remove('pop'), 300);
+}
+function proceedToCheckout() {
+  alert("Checkout process coming soon!");
+}
+document.addEventListener('DOMContentLoaded', () => {
+  renderCart();
+  renderWishlist();
+});
+</script>
+</body>
+</html>

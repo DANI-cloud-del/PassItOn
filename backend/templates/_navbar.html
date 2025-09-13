@@ -1,7 +1,10 @@
 <header>
     <div class="logo">
-        <span>PassItOn</span>
-    </div>
+  <a href="{{ url_for('home') }}" style="text-decoration: none; color: inherit;">
+    <span>PassItOn</span>
+  </a>
+</div>
+
     
     <div class="search-container" style="position: relative; max-width: 500px; flex: 1;">
         <input type="text" class="search-bar" placeholder="Search for items...">
@@ -28,17 +31,18 @@
             </div>
         </div>
 
-        <button class="icon-btn" id="addToCartBtn" title="Cart">
-            <i class="fas fa-shopping-cart"></i>
-            <span class="notification-badge" id="cartCount" style="display: none;">0</span>
-        </button>
+        <!-- Correct way to add cart link in navbar -->
+<a href="{{ url_for('cart') }}" class="icon-btn" id="cartBtn" title="Cart">
+    <i class="fas fa-shopping-cart"></i>
+    <span class="notification-badge" id="cartCount" style="display: none;">0</span>
+</a>
 
         {% if session.get('username') %}
   <button id="logoutBtn" class="icon-btn" title="Logout">
     Logout ({{ session.get('username') }})
   </button>
 {% else %}
-  <a href="{{ url_for('login') }}" id="loginBtn" class="icon-btn" title="Login">Login</a>
+  <a href="{{ url_for('login') }}" style="color: inherit; text-decoration: none;" id="loginBtn" class="icon-btn" title="Login">Login</a>
 {% endif %}
 
         <div class="dropdown icon-btn" id="notificationDropdown">
@@ -55,12 +59,6 @@
     </div>
 </header>
 
-<script>
-    
-    document.getElementById('addToCartBtn').addEventListener('click', () => {
-        alert('Show cart summary or navigate to cart page.');
-    });
-</script>
 
 <script>
     const announcementBtn = document.getElementById('announcementBtn');
@@ -136,45 +134,72 @@
 </script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const makeRequestBtn = document.getElementById('makeRequestBtn');
-        const makeRequestContent = document.getElementById('makeRequestContent');
-        const requestForm = document.getElementById('requestForm');
-        const requestInput = document.getElementById('requestInput');
+    document.addEventListener("DOMContentLoaded", function () {
+  const makeRequestBtn = document.getElementById("makeRequestBtn");
+  const makeRequestContent = document.getElementById("makeRequestContent");
+  const requestForm = document.getElementById("requestForm");
+  const requestInput = document.getElementById("requestInput");
 
-        if (!makeRequestBtn || !makeRequestContent || !requestForm || !requestInput) {
-            console.error('One or more request elements not found');
-            return;
-        }
+  if (!makeRequestBtn || !makeRequestContent || !requestForm || !requestInput) {
+    console.error("Request form elements missing");
+    return;
+  }
 
-        // Toggle dropdown with class instead of display property
-        makeRequestBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            makeRequestContent.classList.toggle('show');
-            if(makeRequestContent.classList.contains('show')) {
-                requestInput.focus();
-            }
-        });
+  // Toggle dropdown visibility
+  makeRequestBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    makeRequestContent.classList.toggle("show");
+    if (makeRequestContent.classList.contains("show")) {
+      requestInput.focus();
+    }
+  });
 
-        // Close dropdown by removing class
-        document.addEventListener('click', (e) => {
-            if (!makeRequestBtn.contains(e.target) && !makeRequestContent.contains(e.target)) {
-                makeRequestContent.classList.remove('show');
-            }
-        });
+  // Close dropdown when clicking outside
+  document.addEventListener("click", function (e) {
+    if (
+      !makeRequestBtn.contains(e.target) &&
+      !makeRequestContent.contains(e.target)
+    ) {
+      makeRequestContent.classList.remove("show");
+    }
+  });
 
-        requestForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const requestText = requestInput.value.trim();
-            if(!requestText) {
-                alert('Please enter a request');
-                return;
-            }
-            alert(`Request sent: ${requestText}`);
-            makeRequestContent.classList.remove('show');
-            requestInput.value = '';
-        });
-    });
+  // Handle form submission with fetch POST
+  requestForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const text = requestInput.value.trim();
+    if (!text) {
+      alert("Please enter your request");
+      return;
+    }
+
+    try {
+      const response = await fetch("/add_request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        // Optionally update the UI with newly added request
+        const notificationList = document.getElementById("notificationList");
+        const li = document.createElement("li");
+        li.textContent = data.request.text + " (just now)";
+        notificationList.appendChild(li);
+
+        requestInput.value = "";
+        makeRequestContent.classList.remove("show");
+      } else {
+        alert("Error submitting request: " + data.error);
+      }
+    } catch (err) {
+      alert("Failed to send request. Check your connection.");
+      console.error(err);
+    }
+  });
+});
+
 </script>
 
 <script>

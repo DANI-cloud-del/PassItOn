@@ -4,29 +4,111 @@
     <meta charset="UTF-8" />
     <title>Deals - PassItOn</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
 </head>
 <body>
-    <header>
-        <h1>Deals</h1>
-        <nav><a href="{{ url_for('home') }}">Home</a> | <a href="{{ url_for('sell_item') }}">Sell Your Items</a></nav>
-    </header>
+    {% include '_navbar.html' %}
     <main style="padding: 20px; max-width: 1000px; margin: auto;">
         {% for category, deals in deals_by_category.items() %}
             <section style="margin-bottom: 40px;">
-                <h2 style="color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 6px;">{{ category }}</h2>
+                <h2 style="color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 6px;">
+                    {{ category }}
+                </h2>
                 <div style="display: flex; gap: 20px; flex-wrap: wrap;">
                     {% for deal in deals %}
-                        <div style="border: 1px solid #ddd; border-radius: 12px; width: 220px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; flex-direction: column;">
-                            <img src="{{ url_for('static', filename='images/' ~ deal.image) }}" alt="{{ deal.title }}" style="width: 100%; height: 140px; object-fit: cover; border-radius: 8px 8px 0 0;">
-                            <h3 style="margin: 10px 0 6px;">{{ deal.title }}</h3>
-                            <p style="flex-grow: 1; font-size: 0.9rem;">{{ deal.description }}</p>
-                            <div style="font-weight: 700; margin-bottom: 8px;">₹{{ deal.price }}</div>
-                            <a href="{{ url_for('add_to_cart', item=deal.title) }}" style="background: var(--primary); color: white; text-align: center; padding: 8px; border-radius: 6px; text-decoration: none;">Add to Cart</a>
+                        <div class="deal-card" style="background: var(--card-bg); border: 1px solid var(--primary); border-radius: 12px; width: 220px; padding: 12px; box-shadow: 0 2px 8px var(--shadow); display: flex; flex-direction: column;">
+                            {% if deal.image %}
+                                <img src="{{ url_for('static', filename='uploads/' + deal.image) }}" 
+                                     alt="{{ deal.title }}" 
+                                     style="width: 100%; height: 140px; object-fit: cover; border-radius: 8px 8px 0 0;">
+                            {% else %}
+                                <div class="deal-img" style="background-color: {{ deal.color }}; height: 140px; border-radius: 8px 8px 0 0; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-{{ deal.icon }} fa-3x" style="color: #fff;"></i>
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Non-clickable elements -->
+                            <h3 style="color: var(--text);">{{ deal.title }}</h3>
+                            <p style="color: var(--text);">{{ deal.description }}</p>
+                            <p style="color: var(--primary);">₹{{ deal.price }}</p>
+
+                            <!-- Only this should be clickable -->
+                            <button 
+                                onclick="addToCart(event, this)" 
+                                data-title="{{ deal.title }}"
+                                data-price="{{ deal.price }}"
+                                data-image="{{ url_for('static', filename='uploads/' + deal.image) }}"
+                                style="background: var(--primary); color: white; cursor: pointer;">
+                                Add to Cart
+                            </button>
+
+                            {% if current_user == deal.creator %}
+                                <form action="{{ url_for('delete_deal', deal_id=deal.id) }}" 
+                                      method="POST" 
+                                      onsubmit="return confirm('Remove this item?');" 
+                                      style="display: inline;">
+                                    <button type="submit" 
+                                            style="background: rgba(231, 76, 60, 0.1); color: #e74c3c; padding: 8px; border-radius: 6px; border: none; cursor: pointer; transition: all 0.2s;">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            {% endif %}
                         </div>
                     {% endfor %}
                 </div>
             </section>
         {% endfor %}
     </main>
+    <script>
+        function addToCart(event, element) {
+  event.preventDefault();
+  const title = element.getAttribute('data-title');
+  const price = parseFloat(element.getAttribute('data-price')) || 0;
+  const image = element.getAttribute('data-image') || '';
+
+  let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+  // Check if item already in cart
+  const existing = cart.find(item => item.title === title);
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    cart.push({title, price, image, quantity: 1});
+  }
+
+  localStorage.setItem('cart', JSON.stringify(cart));
+  updateCartCount();
+  animateCartCount();
+
+  // Show feedback
+  element.innerHTML = '<i class="fas fa-check"></i> Added';
+  setTimeout(() => {
+    element.innerHTML = 'Add to Cart';
+  }, 1500);
+}
+
+// Update cart count badge
+function updateCartCount() {
+  const cartCount = document.getElementById('cartCount');
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  let totalQty = cart.reduce((sum, item) => sum + item.quantity, 0);
+  cartCount.textContent = totalQty > 0 ? totalQty : '';
+  cartCount.style.display = totalQty > 0 ? 'flex' : 'none';
+}
+
+// Simple animation on cart count badge
+function animateCartCount() {
+  const cartCount = document.getElementById('cartCount');
+  if (!cartCount) return;
+  cartCount.classList.add('pop');
+  setTimeout(() => cartCount.classList.remove('pop'), 300);
+}
+
+// Initialize cart count on page load
+document.addEventListener('DOMContentLoaded', () => {
+  updateCartCount();
+});
+    </script>
 </body>
 </html>

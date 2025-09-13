@@ -57,122 +57,49 @@
                 <!-- Navigation dots will be loaded here -->
             </div>
         </div>
-        <section class="top-deals-section" 
-  style="
-    margin-top: 96px;
-    padding: 44px 3%;
-    background: var(--card-bg);
-    border-radius: 22px;
-    box-shadow: 0 6px 36px rgba(0,0,0,0.26), 0 1.5px 3px rgba(0,0,0,0.21);
-    max-width: 1300px;
-    margin-left: auto;
-    margin-right: auto;
-    border: 1.5px solid var(--primary);
-    ">
-  <h2 class="section-title" 
-      style="
-        color: var(--primary);
-        font-size: 2.3rem;
-        text-align: center;
-        margin-top: 0;
-        margin-bottom: 24px;
-        font-weight: 800;
-        letter-spacing: 1px;
-        text-shadow: 0 2px 16px var(--shadow);
-      ">
-    Top Deals
-  </h2>
-  <div style="
-        max-width: 1200px;
-        margin: 18px auto 16px auto;
-        text-align: right;">
-    <a href="{{ url_for('sell_item') }}" class="btn-primary"
-      style="
-        padding: 10px 22px;
-        border-radius: 27px;
-        font-weight: 600;
-        text-decoration: none;
-        font-size: 1.09rem;
-        background: var(--primary);
-        color: #fff;
-        box-shadow: 0 2px 12px var(--shadow);
-        transition: background 0.2s;">
-      <i class="fas fa-plus"></i>
-      Sell Your Items
-    </a>
-  </div>
-  <div class="deals-container"
-    style="
-      display: flex;
-      flex-wrap: wrap;
-      gap: 36px 24px;
-      justify-content: center;
-      align-items: stretch;
-      margin: 0 auto;">
-    {% for deal in top_deals %}
-      <div class="deal-card"
-        style="
-          background: #221E39;
-          color: #f7f7fa;
-          border-radius: 16px;
-          box-shadow: 0 8px 32px var(--shadow);
-          max-width: 270px;
-          padding: 0 0 18px 0;
-          flex: 1 0 260px;
-          min-width: 240px;
-          min-height: 290px;
-          display: flex;
-          flex-direction: column;
-          transition: box-shadow 0.22s, transform 0.16s;
-          border: 1.5px solid var(--primary);
-        ">
-        <div class="deal-img" style="
-          background-color: {{ deal.color }};
-          height: 110px;
-          border-radius: 16px 16px 0 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 2.6rem;
-          color: #fff;
-          margin-bottom: 0;
-        ">
-          <i class="fas fa-{{ deal.icon }}"></i>
-        </div>
-        <div class="deal-details" 
-          style="padding: 18px 20px 8px 20px;
-                 display: flex; flex-direction: column; flex: 1 1 auto; gap: 8px;">
-          <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 3px; color: #fff;">
-            {{ deal.title }}
-          </h3>
-          <p style="
-            font-size: 0.99rem;
-            color: #e7e7fb;
-            opacity: 0.87;
-            flex: 1 1 auto;
-            margin: 0 0 9px 0;">
-            {{ deal.description }}
-          </p>
-          <a href="#" class="deal-button"
-            style="
-              margin-top: auto;
-              background: var(--primary);
-              color: #fff;
-              padding: 12px 0;
-              width: 100%;
-              border-radius: 8px;
-              font-weight: 700;
-              font-size: 1.06rem;
-              text-align: center;
-              text-decoration: none;
-              box-shadow: 0 1.5px 5px var(--shadow);
-              transition: background 0.18s;">
-            Grab Deal
-          </a>
-        </div>
-      </div>
-    {% endfor %}
-  </div>
+        <section class="top-deals-section" style="margin-top: 96px; padding: 44px 3%; background: var(--card-bg); border-radius: 22px; box-shadow: 0 6px 36px rgba(0,0,0,0.26), 0 1.5px 3px rgba(0,0,0,0.21); max-width: 1300px; margin-left: auto; margin-right: auto; border: 1.5px solid var(--primary);">
+    <h2 class="section-title" style="color: var(--primary); font-size: 2.3rem; text-align: center; margin-top: 0; margin-bottom: 24px; font-weight: 800; letter-spacing: 1px; text-shadow: 0 2px 16px var(--shadow);">
+        Top Deals
+    </h2>
+
+    <div style="max-width:1200px; margin: 18px auto 16px auto; text-align: right;">
+        <a href="{{ url_for('sell_item') }}" class="btn-primary" style="padding: 10px 22px; border-radius: 27px; font-weight: 600; text-decoration: none; font-size: 1.09rem; background: var(--primary); color: #fff; box-shadow: 0 2px 12px var(--shadow); transition: background 0.2s;">
+            <i class="fas fa-plus"></i> Sell Your Items
+        </a>
+    </div>
+
+    <div class="deals-container" style="display:flex; flex-wrap:wrap; gap:36px 24px; justify-content:center; align-items:stretch; margin:0 auto;">
+        {% for deal in top_deals %}
+            <div class="deal-card" style="background: #221E39; color: #f7f7fa; border-radius: 16px; box-shadow: 0 8px 32px var(--shadow); max-width: 270px; padding: 0 0 18px 0; flex: 1 0 260px; min-width: 240px; min-height: 290px; display: flex; flex-direction: column; transition: box-shadow 0.22s, transform 0.16s; border: 1.5px solid var(--primary);">
+                {% if deal.image %}
+                    <img src="{{ url_for('static', filename='images/' + deal.image) }}" alt="{{ deal.title }}" style="width:100%; height:110px; object-fit:cover; border-radius: 16px 16px 0 0;">
+                {% else %}
+                    <div class="deal-img" style="background-color: {{ deal.color }}; height: 110px; border-radius: 16px 16px 0 0; display:flex; align-items:center; justify-content:center; color: #fff; font-size: 2.6rem; margin-bottom:0;">
+                        <i class="fas fa-{{ deal.icon }}"></i>
+                    </div>
+                {% endif %}
+
+                <div class="deal-details" style="padding:18px 20px 8px 20px; display:flex; flex-direction:column; flex:1 1 auto; gap:8px;">
+                    <h3 style="font-size:1.15rem; font-weight:700; margin-bottom:3px; color:#fff;">{{ deal.title }}</h3>
+                    <p style="font-size:0.99rem; color:#e7e7fb; opacity:0.87; flex:1 1 auto; margin:0 0 9px 0;">
+                        {{ deal.description }}
+                    </p>
+                    <p style="font-size:1rem; font-weight:600; color:#f39c12; margin-top:auto;">
+                        Price: ₹{{ deal.price }}
+                    </p>
+                    <a href="{{ url_for('deals') }}" class="deal-button" style="margin-top: 10px; background: var(--primary); color: #fff; padding: 12px 0; width: 100%; border-radius: 8px; font-weight: 700; font-size: 1.06rem; text-align: center; text-decoration: none; box-shadow: 0 1.5px 5px var(--shadow); transition: background 0.18s;">
+                        View Details
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div style="max-width: 1200px; margin: 24px auto 0 auto; text-align: center;">
+        <a href="{{ url_for('deals') }}" class="btn-primary" style="padding: 12px 28px; border-radius: 30px; font-weight: 700; font-size: 1.1rem; text-decoration: none; color: inherit;">
+            View More Deals
+        </a>
+    </div>
 </section>
 
 
@@ -348,7 +275,7 @@
                         <div class="carousel-tags">
                             ${item.tags.map(tag => `<span class="carousel-tag">${tag}</span>`).join('')}
                         </div>
-                        <a href="#" class="carousel-button">Browse Items</a>
+                        <a href="{{ url_for('deals') }}" class="carousel-button">Browse Items</a>
                     </div>
                 `;
                 carouselContainer.appendChild(carouselCard);

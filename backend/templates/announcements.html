@@ -102,6 +102,57 @@
         No announcements yet.
       </p>
     {% endif %}
+
+    <!-- Requests section -->
+    <section style="margin-top: 60px; padding: 20px; max-width: 420px;">
+      <h2 style="color: var(--primary); font-weight: 700; text-align: center; margin-bottom: 24px;">
+          Requests
+      </h2>
+
+      <div id="requestsList">
+          {% for req in requests %}
+              <article class="announcement-card" style="margin-bottom: 16px;">
+                  <div class="announcement-icon">
+                      <i class="fas fa-hand-paper"></i>
+                  </div>
+                  <div class="announcement-content">
+                      <div class="announcement-title">
+                          {{ req.text }}
+                      </div>
+                      <div class="announcement-time">
+                          by {{ req.requester }} at {{ req.timestamp[:16].replace('T', ' ') }}
+                      </div>
+                      {% if current_user == req.requester %}
+                          <form action="{{ url_for('delete_request', request_id=req.id) }}" 
+                                method="POST" 
+                                style="display: inline; margin-top: 8px;">
+                              <button type="submit" 
+                                      class="btn-action remove"
+                                      style="background: rgba(231, 76, 60, 0.1); 
+                                             color: #e74c3c; 
+                                             padding: 4px 8px; 
+                                             border-radius: 4px; 
+                                             border: none; 
+                                             cursor: pointer; 
+                                             transition: all 0.2s;">
+                                  <i class="fas fa-trash-alt"></i> Delete
+                              </button>
+                          </form>
+                      {% endif %}
+                  </div>
+              </article>
+          {% else %}
+              <article class="announcement-card">
+                  <div class="announcement-icon">
+                      <i class="fas fa-inbox"></i>
+                  </div>
+                  <div class="announcement-content">
+                      <div class="announcement-desc">No requests yet.</div>
+                  </div>
+              </article>
+          {% endfor %}
+      </div>
+    </section>
   </main>
 
 </body>

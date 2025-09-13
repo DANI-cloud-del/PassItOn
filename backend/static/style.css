@@ -370,23 +370,27 @@ header {
 
 .notification-badge {
     position: absolute;
-    top: -5px;
-    right: -5px;
-    background: var(--accent);
+    top: -8px;
+    right: -8px;
+    background: #e74c3c;
     color: white;
-    font-size: 0.7rem;
-    width: 18px;
-    height: 18px;
     border-radius: 50%;
+    width: 20px;
+    height: 20px;
     display: flex;
-    justify-content: center;
     align-items: center;
-    animation: pulse 2s infinite;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
 }
 
-@keyframes pulse {
+.notification-badge.pop {
+    animation: popAnimation 0.3s ease-out;
+}
+
+@keyframes popAnimation {
     0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
+    50% { transform: scale(1.3); }
     100% { transform: scale(1); }
 }
 
@@ -553,15 +557,65 @@ header {
 
 /* General improvements for both light and dark mode */
 .deal-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border-radius: 12px;
-    overflow: hidden;
+    background: var(--card-bg);
+    border: 1.5px solid var(--primary);
+    border-radius: 14px;
+    width: 220px;
+    padding: 16px;
+    box-shadow: 0 4px 15px rgba(100, 60, 200, 0.12);
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    cursor: default;
 }
-
-.deal-img {
-    padding: 2rem;
-    text-align: center;
-    transition: opacity 0.3s ease;
+.deal-card:hover {
+    box-shadow: 0 8px 40px rgba(100, 60, 200, 0.25);
+    transform: translateY(-4px);
+}
+.deal-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 12px 12px 0 0;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 7px rgba(0,0,0,0.1);
+}
+.deal-card h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.15rem;
+    margin-bottom: 6px;
+    color: var(--text);
+    font-weight: 600;
+}
+.deal-card p.description {
+    font-size: 0.9rem;
+    color: var(--text);
+    opacity: 0.75;
+    flex-grow: 1;
+    margin-bottom: 10px;
+    font-family: 'Poppins', sans-serif;
+}
+.deal-card p.price {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 1.1rem;
+    margin-bottom: 14px;
+    font-family: 'Poppins', sans-serif;
+}
+.deal-card button {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--primary);
+    color: white;
+    padding: 9px 0;
+    font-weight: 600;
+    border-radius: 10px;
+    border: none;
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.deal-card button:hover {
+    background-color: var(--accent);
 }
 
 .deal-img i {
@@ -715,6 +769,7 @@ header {
   background-color: var(--primary);
   color: white;
   padding: 10px 14px;
+  border: none;
   border-radius: 6px;
   font-weight: 600;
   text-align: center;
@@ -849,17 +904,28 @@ header {
 
 .notification-badge {
     position: absolute;
-    top: -6px;
-    right: -6px;
-    background: var(--accent);
+    top: -8px;
+    right: -8px;
+    background: #e74c3c;
     color: white;
-    font-size: 0.65rem;
-    width: 16px;
-    height: 16px;
     border-radius: 50%;
+    width: 20px;
+    height: 20px;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.notification-badge.pop {
+    animation: popAnimation 0.3s ease-out;
+}
+
+@keyframes popAnimation {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
 }
 
 section {
@@ -892,17 +958,18 @@ section {
 
 .notification-badge {
     position: absolute;
-    top: -6px;
-    right: -6px;
-    background: var(--accent);
+    top: -8px;
+    right: -8px;
+    background: #e74c3c;
     color: white;
-    font-size: 0.65rem;
-    width: 16px;
-    height: 16px;
     border-radius: 50%;
+    width: 20px;
+    height: 20px;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
 }
 
 .dropdown-content form textarea {
@@ -1065,4 +1132,14 @@ section {
 .search-bar::placeholder {
     color: var(--text);
     opacity: 0.7;
+}
+
+.notification-badge.pop {
+  animation: popScale 0.3s ease forwards;
+}
+
+@keyframes popScale {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.5); }
+  100% { transform: scale(1); }
 }

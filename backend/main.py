@@ -1,10 +1,31 @@
 import json
 import os
+import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import flash
 from flask import Flask, render_template, request, redirect, url_for, session
-import os
 from flask import session, request, redirect, url_for, render_template, flash
+import datetime
+from flask import jsonify
+
+
+DEALS_FILE = 'deals.json'
+REQUESTS_FILE = 'requests.json'
+
+# Get the absolute path to the backend directory
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def load_deals():
+    if not os.path.exists(DEALS_FILE):
+        return []
+    with open(DEALS_FILE, 'r') as f:
+        return json.load(f)
+
+def save_deals(deals):
+    with open(DEALS_FILE, 'w') as f:
+        json.dump(deals, f, indent=2)
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 app.secret_key = os.urandom(24)  # For session management
@@ -34,45 +55,131 @@ def home():
 
 @app.route('/announcements')
 def announcements():
-    # Example announcements - replace with DB or storage as needed
     notices = [
         "Need a calculator for physics lab.",
         "Looking for a used ballpoint pen.",
-        "Anyone has extra notebooks to share?",
-        "Request: Extension cord for phone charger."
+        # etc.
     ]
-    return render_template('announcements.html', notices=notices)
+    requests_list = load_requests()
+    return render_template('announcements.html',
+                           notices=notices,
+                           requests=requests_list,
+                           current_user=session.get('username'))
 
 @app.route('/deals')
 def deals():
-    # Sample deals grouped by category
-    deals_by_category = {
-        "Calculators": [
-            {"title": "Scientific Calculator", "price": 450, "image": "calc1.jpg", "description": "Good condition, Casio fx-991EX"},
-            {"title": "Basic Calculator", "price": 150, "image": "calc2.jpg", "description": "Simple model, battery operated"}
-        ],
-        "Books": [
-            {"title": "Data Structures Textbook", "price": 400, "image": "book1.jpg", "description": "Used condition, 3rd edition"},
-            {"title": "Linear Algebra Guide", "price": 350, "image": "book2.jpg", "description": "Almost new, hardcover"}
-        ],
-        # Add other categories similarly
+    all_deals = load_deals()
+    deals_by_category = {'All Items': all_deals}
+    return render_template('deals.html', 
+                         deals_by_category=deals_by_category, 
+                         current_user=session.get('username'))
+
+@app.route('/delete-deal/<deal_id>', methods=['POST'])
+def delete_deal(deal_id):
+    if 'username' not in session:
+        flash('You must be logged in to remove items.')
+        return redirect(url_for('login'))
+
+    deals = load_deals()
+    deal_to_delete = next((d for d in deals if d['id'] == deal_id), None)
+
+    if not deal_to_delete:
+        flash('Deal not found.')
+        return redirect(url_for('deals'))
+
+    if deal_to_delete['creator'] != session['username']:
+        flash('You are not authorized to delete this item.')
+        return redirect(url_for('deals'))
+
+    deals = [d for d in deals if d['id'] != deal_id]
+    save_deals(deals)
+    flash('Item removed successfully.')
+    return redirect(url_for('deals'))
+
+@app.route('/add_request', methods=['POST'])
+def add_request():
+    if 'username' not in session:
+        return jsonify({'error': 'Login required'}), 401
+    
+    data = request.get_json()
+    text = data.get('text', '').strip()
+    if not text:
+        return jsonify({'error': 'Empty request text'}), 400
+
+    requests_list = load_requests()
+    new_request = {
+        'id': str(uuid.uuid4()),
+        'text': text,
+        'requester': session['username'],
+        'timestamp': datetime.datetime.utcnow().isoformat()
     }
-    return render_template('deals.html', deals_by_category=deals_by_category)
+    requests_list.append(new_request)
+    save_requests(requests_list)
+    return jsonify({'success': True, 'request': new_request})
+
+@app.route('/delete_request/<request_id>', methods=['POST'])
+def delete_request(request_id):
+    if 'username' not in session:
+        flash('Login required to delete requests.')
+        return redirect(url_for('announcements'))
+
+    requests_list = load_requests()
+    req = next((r for r in requests_list if r['id'] == request_id), None)
+
+    if not req:
+        flash('Request not found.')
+        return redirect(url_for('announcements'))
+
+    if req['requester'] != session['username']:
+        flash('You are not authorized to delete this request.')
+        return redirect(url_for('announcements'))
+
+    requests_list = [r for r in requests_list if r['id'] != request_id]
+    save_requests(requests_list)
+    flash('Request deleted successfully.')
+    return redirect(url_for('announcements'))
+
 
 @app.route('/sell-item', methods=['GET', 'POST'])
 def sell_item():
-    if request.method == 'POST':
-        # Process form data here, save new item & image, redirect or show confirmation
-        # For now, just redirect back to deals page
-        return redirect(url_for('deals'))
-    return render_template('sell_item.html')
+    if 'username' not in session:
+        flash('You must be logged in to sell items.')
+        return redirect(url_for('login'))
 
-@app.route('/add-to-cart')
-def add_to_cart():
-    item_name = request.args.get('item')
-    # Handle adding item to user's cart logic here
-    # For now, simple confirmation
-    return f"Added <b>{item_name}</b> to cart! (Implement cart logic)"
+    if request.method == 'POST':
+        title = request.form['title'].strip()
+        price = float(request.form['price'])
+        description = request.form['description'].strip()
+        uploaded_file = request.files.get('image')
+
+        # Save uploaded image if any
+        image_filename = ''
+        if uploaded_file and uploaded_file.filename != '':
+            ext = os.path.splitext(uploaded_file.filename)[1]
+            image_filename = f"{uuid.uuid4().hex}{ext}"
+            uploaded_file.save(os.path.join(UPLOAD_FOLDER, image_filename))
+
+        # Load current deals
+        deals = load_deals()
+
+        # Create new deal with unique ID and creator username
+        new_deal = {
+            'id': uuid.uuid4().hex,
+            'title': title,
+            'price': price,
+            'description': description,
+            'image': image_filename,
+            'creator': session['username']
+        }
+        deals.append(new_deal)
+
+        # Save updated deals
+        save_deals(deals)
+
+        flash('Item listed successfully!')
+        return redirect(url_for('deals'))
+
+    return render_template('sell_item.html')
 
 USERS_FILE = 'users.json'
 
@@ -132,5 +239,19 @@ def logout():
     session.pop('username', None)
     flash('You have been logged out')
     return redirect(url_for('home'))
+
+@app.route('/cart')
+def cart():
+    return render_template('cart.html')
+
+def load_requests():
+    if not os.path.exists(REQUESTS_FILE):
+        return []
+    with open(REQUESTS_FILE, 'r') as f:
+        return json.load(f)
+
+def save_requests(requests):
+    with open(REQUESTS_FILE, 'w') as f:
+        json.dump(requests, f, indent=2)
 
 app.run(debug=True)
