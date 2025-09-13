@@ -13,13 +13,17 @@
 <body>
     <!-- Initial loading screen with motto -->
     <div class="loading-screen" id="loadingScreen">
+        <div class="loading-animation">
+            <div class="circle-loader"></div>
+            <div class="loader-line"></div>
+        </div>
         <div class="motto-container">
             {% if show_motto %}
                 <div class="motto">
                     {% if session.get('username') %}
                         <p>Welcome back, {{ session.get('username') }}! Let's make the most of PassItOn.</p>
                     {% else %}
-                        <p>Give what you don't need. Get what you do.</p>
+                        <p>Welcome to PassItOn! Let's make the most of your stay.</p>
                     {% endif %}
                 </div>
             {% endif %}
@@ -273,15 +277,18 @@
 
         // Initialize after DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
+            const loadingScreen = document.getElementById('loadingScreen');
+            const mainContent = document.getElementById('mainContent');
+            const motto = document.querySelector('.motto');
+            
+            // Show loading for 3 seconds total
             setTimeout(function() {
-                const loadingScreen = document.getElementById('loadingScreen');
-                const mainContent = document.getElementById('mainContent');
                 loadingScreen.classList.add('fade-out');
                 setTimeout(function() {
                     mainContent.classList.add('visible');
                     initCarousel();
                 }, 500);
-            }, 4000);
+            }, 3000); // Reduced from 4000 to 3000 for better UX
             
             const themeToggle = document.getElementById('themeToggle');
             const themeIcon = themeToggle.querySelector('i');
@@ -409,127 +416,6 @@
 <!-- Removed duplicate makeRequestBtn modal script block to avoid redeclaration error. 
      The dropdown-based request logic below is sufficient for handling requests. -->
 
-<script>
-    
-    document.getElementById('addToCartBtn').addEventListener('click', () => {
-        alert('Show cart summary or navigate to cart page.');
-    });
-</script>
-
-<script>
-    const announcementBtn = document.getElementById('announcementBtn');
-    const announcementContent = document.getElementById('announcementContent');
-    const announcementList = document.getElementById('announcementList');
-
-    // Example announcements you may pass from backend or define here
-    const announcements = [
-        "Need a calculator for physics lab.",
-        "Looking for a used ballpoint pen.",
-        "Extension cords available for sharing.",
-        "Offering used textbooks in good condition."
-    ];
-
-    // Populate announcement list
-    announcements.forEach(text => {
-        const li = document.createElement('li');
-        li.textContent = text;
-        announcementList.appendChild(li);
-    });
-
-    // Toggle dropdown show/hide
-    announcementBtn.addEventListener('click', () => {
-        if (announcementContent.style.display === 'none' || announcementContent.style.display === '') {
-            announcementContent.style.display = 'block';
-        } else {
-            announcementContent.style.display = 'none';
-        }
-    });
-
-    // Close dropdown if clicked outside
-    window.addEventListener('click', function(event) {
-        if (!announcementBtn.contains(event.target) && !announcementContent.contains(event.target)) {
-            announcementContent.style.display = 'none';
-        }
-    });
-</script>
-
-<script>
-    const notificationBtn = document.getElementById('notificationBtn');
-    const notificationContent = document.getElementById('notificationContent');
-    const notificationList = document.getElementById('notificationList');
-
-    // Sample notification messages
-    const notifications = [
-        "Alice requested a calculator.",
-        "New item added to Stationery Pack.",
-        "Event: E-waste drive next Monday!"
-    ];
-
-    // Populate notifications list
-    notifications.forEach(text => {
-        const li = document.createElement('li');
-        li.textContent = text;
-        notificationList.appendChild(li);
-    });
-
-    // Toggle dropdown visibility on bell click
-    notificationBtn.addEventListener('click', () => {
-        if (notificationContent.style.display === 'block') {
-            notificationContent.style.display = 'none';
-        } else {
-            notificationContent.style.display = 'block';
-        }
-    });
-
-    // Hide dropdown if click outside
-    window.addEventListener('click', (e) => {
-        if (!notificationBtn.contains(e.target) && !notificationContent.contains(e.target)) {
-            notificationContent.style.display = 'none';
-        }
-    });
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const makeRequestBtn = document.getElementById('makeRequestBtn');
-        const makeRequestContent = document.getElementById('makeRequestContent');
-        const requestForm = document.getElementById('requestForm');
-        const requestInput = document.getElementById('requestInput');
-
-        if (!makeRequestBtn || !makeRequestContent || !requestForm || !requestInput) {
-            console.error('One or more request elements not found');
-            return;
-        }
-
-        // Toggle dropdown with class instead of display property
-        makeRequestBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            makeRequestContent.classList.toggle('show');
-            if(makeRequestContent.classList.contains('show')) {
-                requestInput.focus();
-            }
-        });
-
-        // Close dropdown by removing class
-        document.addEventListener('click', (e) => {
-            if (!makeRequestBtn.contains(e.target) && !makeRequestContent.contains(e.target)) {
-                makeRequestContent.classList.remove('show');
-            }
-        });
-
-        requestForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const requestText = requestInput.value.trim();
-            if(!requestText) {
-                alert('Please enter a request');
-                return;
-            }
-            alert(`Request sent: ${requestText}`);
-            makeRequestContent.classList.remove('show');
-            requestInput.value = '';
-        });
-    });
-</script>
 
 <script>
     
@@ -543,6 +429,25 @@
 });
 
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+            // Theme Toggle
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = themeToggle.querySelector('i');
+            
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                if (document.body.classList.contains('dark-mode')) {
+                    themeIcon.classList.remove('fa-moon');
+                    themeIcon.classList.add('fa-sun');
+                } else {
+                    themeIcon.classList.remove('fa-sun');
+                    themeIcon.classList.add('fa-moon');
+                }
+            })});
+  </script>
+
 
 
 <footer style="background: var(--header-bg); padding: 30px 5%; margin-top: 50px; box-shadow: 0 -2px 15px var(--shadow); color: var(--text); font-size: 0.95rem;">
