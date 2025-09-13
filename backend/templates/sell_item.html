@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Sell Your Item - PassItOn</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+    <header>
+        <h1>Sell Your Item</h1>
+        <nav><a href="{{ url_for('home') }}">Home</a> | <a href="{{ url_for('deals') }}">Deals</a></nav>
+    </header>
+    <main style="padding: 20px; max-width: 600px; margin: auto;">
+        <form action="{{ url_for('sell_item') }}" method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 15px;">
+            <label>
+                Item Title
+                <input type="text" name="title" required placeholder="Enter item title" />
+            </label>
+            <label>
+                Description
+                <textarea name="description" rows="4" required placeholder="Add item details"></textarea>
+            </label>
+            <label>
+                Category
+                <select name="category" required>
+                    <option value="" disabled selected>Select category</option>
+                    <option value="Calculators">Calculators</option>
+                    <option value="Books">Books</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Others">Others</option>
+                </select>
+            </label>
+            <label>
+                Price (₹)
+                <input type="number" name="price" min="0" step="1" required />
+            </label>
+            <label>
+                Upload Image
+                <input type="file" name="image" accept="image/*" required />
+            </label>
+            <button type="submit" class="btn-primary">Submit Item</button>
+        </form>
+    </main>
+</body>
+</html>

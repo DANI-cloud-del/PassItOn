@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Announcements - PassItOn</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+    <header>
+        <h1>Announcements</h1>
+        <nav>
+            <a href="{{ url_for('home') }}">Home</a>
+        </nav>
+    </header>
+    <main class="announcements-main" style="padding: 20px; max-width: 700px; margin: auto;">
+        {% if notices %}
+            <ul>
+                {% for notice in notices %}
+                    <li style="margin-bottom: 12px; padding: 12px; background: var(--card-bg); border-radius: 8px; box-shadow: 0 1px 5px rgba(0,0,0,0.1);">
+                        {{ notice }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No announcements yet.</p>
+        {% endif %}
+    </main>
+</body>
+</html>

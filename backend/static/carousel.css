@@ -19,8 +19,10 @@
     min-height: 350px;
     overflow: visible;
     perspective: 1200px;
-    padding-bottom: 50px; /* space for dots */
+    padding-bottom: 90px; /* space for dots and extra separation */
+    margin-bottom: 44px;   /* Add more gap between carousel and next section */
 }
+
 
 /* Carousel Card Base */
 .carousel-card {
@@ -175,13 +177,14 @@
 /* Dots */
 .carousel-dots {
     position: absolute;
-    bottom: 11px;
+    bottom: -88px; /* Move dots below the carousel cards */
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 9px;
+    gap: 10px;
     z-index: 15;
 }
+
 .carousel-dot {
     width: 10px;
     height: 10px;
