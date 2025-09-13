@@ -14,25 +14,25 @@
     <main class="sell-item-main" style="max-width: 600px; margin: 40px auto; padding: 20px; background: var(--card-bg); border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.05); font-family: 'Poppins', sans-serif;">
       <h1 style="color: var(--primary); margin-bottom: 20px;">Sell Your Item</h1>
   
-      <form action="{{ url_for('sell_item') }}" method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 16px;">
+      <form action="{{ url_for('sell_item') }}" method="POST" enctype="multipart/form-data" id="sellItemForm" style="display: flex; flex-direction: column; gap: 16px;">
         
-        <label>
-          <span style="font-weight: 600; margin-bottom: 6px; display: block;">Item Title</span>
-          <input type="text" name="title" placeholder="Enter item title" required 
+        <div class="form-group">
+          <label for="title" style="font-weight: 600; margin-bottom: 6px; display: block;">Item Title</label>
+          <input type="text" id="title" name="title" placeholder="Enter item title" required 
             style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid var(--primary);
                    font-size: 1rem; color: var(--text); box-sizing: border-box;" />
-        </label>
+        </div>
   
-        <label>
-          <span style="font-weight: 600; margin-bottom: 6px; display: block;">Description</span>
-          <textarea name="description" rows="5" placeholder="Add item details" required
+        <div class="form-group">
+          <label for="description" style="font-weight: 600; margin-bottom: 6px; display: block;">Description</label>
+          <textarea id="description" name="description" rows="5" placeholder="Add item details" required
             style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid var(--primary);
                    font-size: 1rem; color: var(--text); resize: vertical; box-sizing: border-box;"></textarea>
-        </label>
+        </div>
         
-        <label>
-          <span style="font-weight: 600; margin-bottom: 6px; display: block;">Category</span>
-          <select name="category" required
+        <div class="form-group">
+          <label for="category" style="font-weight: 600; margin-bottom: 6px; display: block;">Category</label>
+          <select id="category" name="category" required
             style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid var(--primary);
                    font-size: 1rem; color: var(--text); box-sizing: border-box;">
             <option value="" disabled selected>Select category</option>
@@ -41,17 +41,17 @@
             <option>Electronics</option>
             <option>Others</option>
           </select>
-        </label>
+        </div>
   
-        <label>
-          <span style="font-weight: 600; margin-bottom: 6px; display: block;">Price (₹)</span>
-          <input type="number" name="price" min="0" step="1" required
+        <div class="form-group">
+          <label for="price" style="font-weight: 600; margin-bottom: 6px; display: block;">Price (₹)</label>
+          <input type="number" id="price" name="price" min="0" step="1" required
             style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid var(--primary);
                    font-size: 1rem; color: var(--text); box-sizing: border-box;" />
-        </label>
+        </div>
   
-        <label>
-          <span style="font-weight: 600; margin-bottom: 6px; display: block;">Upload Image</span>
+        <div class="form-group">
+          <label for="image" style="font-weight: 600; margin-bottom: 6px; display: block;">Upload Image</label>
   
   
           <!-- Styled Drag & Drop Upload Area -->
@@ -60,12 +60,12 @@
                style="border: 2px dashed var(--primary); border-radius: 15px; padding: 30px; text-align: center; cursor: pointer; color: var(--primary); font-weight: 500; user-select: none;">
             <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; margin-bottom: 14px;"></i>
             <p>Drag and drop image here or click to select file</p>
-            <input type="file" name="image" id="fileInput" accept="image/*" required 
+            <input type="file" id="image" name="image" accept="image/*" required 
                    style="display: none;" />
             <p id="fileName" style="margin-top: 10px; font-size: 0.9rem; color: var(--text);"></p>
           </div>
   
-        </label>
+        </div>
   
         <button type="submit" class="btn-primary" style="margin-top: 10px;">Submit Item</button>
       </form>
@@ -73,7 +73,7 @@
   
     <script>
       const fileUploadArea = document.getElementById('fileUploadArea');
-      const fileInput = document.getElementById('fileInput');
+      const fileInput = document.getElementById('image');
       const fileNameDisplay = document.getElementById('fileName');
   
       // Clicking on area opens hidden file input
@@ -104,6 +104,13 @@
         if(e.dataTransfer.files.length > 0) {
           fileInput.files = e.dataTransfer.files;
           fileNameDisplay.textContent = fileInput.files[0].name;
+        }
+      });
+  
+      document.getElementById('sellItemForm').addEventListener('submit', function(e) {
+        if (!fileInput.files || !fileInput.files[0]) {
+            e.preventDefault();
+            alert('Please select an image file');
         }
       });
     </script>

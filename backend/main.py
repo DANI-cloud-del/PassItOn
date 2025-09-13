@@ -17,6 +17,12 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 def load_deals():
     if not os.path.exists(DEALS_FILE):
         return []
@@ -33,25 +39,22 @@ app.secret_key = os.urandom(24)  # For session management
 @app.route('/')
 def home():
     user = session.get('username', 'Guest')
-    top_deals = [
-        {"title": "Exclusive Textbooks Sale", "description": "Get up to 50% off on last year's textbooks.", "icon": "book", "color": "#4fbbd6"},
-        {"title": "Stationery Pack Deal", "description": "Bundle of pens, notebooks, and highlighters.", "icon": "pen", "color": "#8e44ad"},
-        {"title": "Hot Kitchen Gadgets", "description": "Essential kitchen utensils for your hostel room.", "icon": "utensils", "color": "#e74c3c"},
-        {"title": "Tech Accessories", "description": "Chargers, lamps and smart gadgets at low prices.", "icon": "laptop", "color": "#2ecc71"},
-    ]
+    top_deals = load_deals()  # Load user-uploaded deals dynamically
+
     notices = [
         "Need a calculator for physics lab.",
         "Looking for a used ballpoint pen.",
         "Anyone has extra notebooks to share?"
     ]
-    
-    show_motto = session.pop('show_motto', False)  # pops and removes 'show_motto'
-    
+
+    show_motto = session.pop('show_motto', False)
+
     return render_template('home.html',
                            user=user,
                            top_deals=top_deals,
                            notices=notices,
                            show_motto=show_motto)
+
 
 @app.route('/search_suggestions')
 def search_suggestions():
@@ -167,45 +170,50 @@ def delete_request(request_id):
 
 @app.route('/sell-item', methods=['GET', 'POST'])
 def sell_item():
-    if 'username' not in session:
-        flash('You must be logged in to sell items.')
-        return redirect(url_for('login'))
-
     if request.method == 'POST':
-        title = request.form['title'].strip()
-        price = float(request.form['price'])
-        description = request.form['description'].strip()
-        uploaded_file = request.files.get('image')
-
-        # Save uploaded image if any
-        image_filename = ''
-        if uploaded_file and uploaded_file.filename != '':
-            ext = os.path.splitext(uploaded_file.filename)[1]
-            image_filename = f"{uuid.uuid4().hex}{ext}"
-            uploaded_file.save(os.path.join(UPLOAD_FOLDER, image_filename))
-
-        # Load current deals
-        deals = load_deals()
-
-        # Create new deal with unique ID and creator username
-        new_deal = {
-            'id': uuid.uuid4().hex,
-            'title': title,
-            'price': price,
-            'description': description,
-            'image': image_filename,
-            'creator': session['username'],
-            'timestamp': datetime.datetime.utcnow().isoformat()
-}
-
-        deals.append(new_deal)
-
-        # Save updated deals
-        save_deals(deals)
-
-        flash('Item listed successfully!')
-        return redirect(url_for('deals'))
-
+        title = request.form.get('title')
+        description = request.form.get('description')
+        price = request.form.get('price')
+        category = request.form.get('category')
+        
+        # Handle file upload
+        if 'image' not in request.files:
+            flash('No image file uploaded')
+            return redirect(request.url)
+            
+        file = request.files['image']
+        
+        # If user didn't select a file
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+            
+        if file and allowed_file(file.filename):
+            # Secure the filename
+            filename = secure_filename(file.filename)
+            # Save file
+            file.save(os.path.join(UPLOAD_FOLDER, filename))
+            
+            # Create new deal
+            new_deal = {
+                'id': str(uuid.uuid4()),
+                'title': title,
+                'description': description,
+                'price': float(price),
+                'category': category,
+                'image': filename,
+                'creator': session.get('username'),
+                'created_at': datetime.now().isoformat()
+            }
+            
+            # Load existing deals and append new one
+            deals = load_deals()
+            deals.append(new_deal)
+            save_deals(deals)
+            
+            flash('Item listed successfully!')
+            return redirect(url_for('deals'))
+            
     return render_template('sell_item.html')
 
 USERS_FILE = 'users.json'

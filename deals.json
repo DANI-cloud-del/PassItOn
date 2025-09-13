@@ -6,5 +6,14 @@
     "description": "TEST 2",
     "image": "605100c396144866949cd07d5f5fa3e6.png",
     "creator": "DANI"
+  },
+  {
+    "id": "5f27bf6ca37e48b89a86561207102958",
+    "title": "TEST 2",
+    "price": 500.0,
+    "description": "TEST # 2",
+    "image": "9aeb760dac384b6aa714f9271d87cfcc.png",
+    "creator": "DANI",
+    "timestamp": "2025-09-13T19:16:26.680290"
   }
 ]
