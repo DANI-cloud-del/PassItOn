@@ -14,49 +14,19 @@
     <!-- Initial loading screen with motto -->
     <div class="loading-screen" id="loadingScreen">
         <div class="motto-container">
-            <p class="motto">Give what you don't need. Get what you do.</p>
+            {% if show_motto %}
+                <div class="motto">
+                    {% if session.get('username') %}
+                        <p>Welcome back, {{ session.get('username') }}! Let's make the most of PassItOn.</p>
+                    {% else %}
+                        <p>Give what you don't need. Get what you do.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
         </div>
     </div>
     
-   <header>
-    <div class="logo">
-        <span>PassItOn</span>
-    </div>
-    
-    <div class="search-container">
-        <input type="text" class="search-bar" placeholder="Search for items...">
-    </div>
-    
-    <div class="nav-icons">
-        <button class="icon-btn" id="themeToggle" title="Toggle Theme">
-            <i class="fas fa-moon"></i>
-        </button>
-        
-        <button class="icon-btn" id="makeRequestBtn" title="Make a Request">
-            <i class="fas fa-plus-circle"></i>
-        </button>
-        
-        <button class="icon-btn" id="addToCartBtn" title="Cart">
-            <i class="fas fa-shopping-cart"></i>
-            <span class="notification-badge" id="cartCount" style="display: none;">0</span>
-        </button>
-        
-        <button class="icon-btn" id="loginBtn" title="Login">Login</button>
-        
-        <!-- Notification bell with dropdown top-down -->
-        <div class="dropdown icon-btn" id="notificationDropdown" style="position: relative;">
-            <button id="notificationBtn" title="Notifications" style="background:none; border:none; color:inherit; font-size: 1.3rem; cursor:pointer; position: relative;">
-                <i class="fas fa-bell"></i>
-                <span class="notification-badge" id="notificationCount">3</span>
-            </button>
-            <div class="dropdown-content" id="notificationContent" style="display:none; position: absolute; right: 0; top: 110%; background: var(--card-bg); border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); max-width: 300px; max-height: 350px; overflow-y: auto; z-index: 25; padding: 12px; font-size: 0.9rem;">
-                <ul id="notificationList" style="list-style:none; padding:0; margin:0;">
-                    <!-- notifications will be dynamically loaded here -->
-                </ul>
-            </div>
-        </div>
-    </div>
-</header>
+    {% include '_navbar.html' %}
 
 
 
@@ -83,57 +53,169 @@
                 <!-- Navigation dots will be loaded here -->
             </div>
         </div>
-        <section class="top-deals-section" style="margin-top: 144px;">
-  <h2 class="section-title">Top Deals</h2>
-  <div style="max-width: 1200px; margin: 30px auto; text-align: right;">
-    <a href="{{ url_for('sell_item') }}" class="btn-primary" style="padding: 10px 18px; border-radius: 25px; font-weight: 600; text-decoration: none;">
-      <i class="fas fa-plus"></i> Sell Your Items
+        <section class="top-deals-section" 
+  style="
+    margin-top: 96px;
+    padding: 44px 3%;
+    background: var(--card-bg);
+    border-radius: 22px;
+    box-shadow: 0 6px 36px rgba(0,0,0,0.26), 0 1.5px 3px rgba(0,0,0,0.21);
+    max-width: 1300px;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1.5px solid var(--primary);
+    ">
+  <h2 class="section-title" 
+      style="
+        color: var(--primary);
+        font-size: 2.3rem;
+        text-align: center;
+        margin-top: 0;
+        margin-bottom: 24px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-shadow: 0 2px 16px var(--shadow);
+      ">
+    Top Deals
+  </h2>
+  <div style="
+        max-width: 1200px;
+        margin: 18px auto 16px auto;
+        text-align: right;">
+    <a href="{{ url_for('sell_item') }}" class="btn-primary"
+      style="
+        padding: 10px 22px;
+        border-radius: 27px;
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 1.09rem;
+        background: var(--primary);
+        color: #fff;
+        box-shadow: 0 2px 12px var(--shadow);
+        transition: background 0.2s;">
+      <i class="fas fa-plus"></i>
+      Sell Your Items
     </a>
   </div>
-  <div class="deals-container">
+  <div class="deals-container"
+    style="
+      display: flex;
+      flex-wrap: wrap;
+      gap: 36px 24px;
+      justify-content: center;
+      align-items: stretch;
+      margin: 0 auto;">
     {% for deal in top_deals %}
-    <div class="deal-card">
-      <div class="deal-img" style="background-color: {{ deal.color }};">
-        <i class="fas fa-{{ deal.icon }}"></i>
+      <div class="deal-card"
+        style="
+          background: #221E39;
+          color: #f7f7fa;
+          border-radius: 16px;
+          box-shadow: 0 8px 32px var(--shadow);
+          max-width: 270px;
+          padding: 0 0 18px 0;
+          flex: 1 0 260px;
+          min-width: 240px;
+          min-height: 290px;
+          display: flex;
+          flex-direction: column;
+          transition: box-shadow 0.22s, transform 0.16s;
+          border: 1.5px solid var(--primary);
+        ">
+        <div class="deal-img" style="
+          background-color: {{ deal.color }};
+          height: 110px;
+          border-radius: 16px 16px 0 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 2.6rem;
+          color: #fff;
+          margin-bottom: 0;
+        ">
+          <i class="fas fa-{{ deal.icon }}"></i>
+        </div>
+        <div class="deal-details" 
+          style="padding: 18px 20px 8px 20px;
+                 display: flex; flex-direction: column; flex: 1 1 auto; gap: 8px;">
+          <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 3px; color: #fff;">
+            {{ deal.title }}
+          </h3>
+          <p style="
+            font-size: 0.99rem;
+            color: #e7e7fb;
+            opacity: 0.87;
+            flex: 1 1 auto;
+            margin: 0 0 9px 0;">
+            {{ deal.description }}
+          </p>
+          <a href="#" class="deal-button"
+            style="
+              margin-top: auto;
+              background: var(--primary);
+              color: #fff;
+              padding: 12px 0;
+              width: 100%;
+              border-radius: 8px;
+              font-weight: 700;
+              font-size: 1.06rem;
+              text-align: center;
+              text-decoration: none;
+              box-shadow: 0 1.5px 5px var(--shadow);
+              transition: background 0.18s;">
+            Grab Deal
+          </a>
+        </div>
       </div>
-      <div class="deal-details">
-        <h3>{{ deal.title }}</h3>
-        <p>{{ deal.description }}</p>
-        <a href="#" class="deal-button">Grab Deal</a>
-      </div>
-    </div>
     {% endfor %}
   </div>
 </section>
 
 
 
-    <section class="announcement-box" style="max-width: 800px; margin: 40px auto; padding: 16px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 3px 15px rgba(0,0,0,0.1);">
-    <h3 style="color: var(--primary); margin-bottom: 12px;">Latest Announcements</h3>
-    <ul style="list-style: disc inside; color: var(--text); max-height: 140px; overflow-y: auto;">
-        {% for notice in notices %}
-            <li>{{ notice }}</li>
-        {% else %}
-            <li>No announcements yet.</li>
-        {% endfor %}
-    </ul>
-    <p style="margin-top: 12px; text-align: right;">
-        <a href="{{ url_for('announcements') }}" style="color: var(--secondary); font-weight: 600; text-decoration: none;">View all &rarr;</a>
-    </p>
+
+    <section class="announcement-box" 
+  style="
+    max-width: 900px;
+    margin: 40px auto 0 auto;
+    padding: 32px 28px 18px 28px;
+    background: #221E39;
+    border-radius: 16px;
+    box-shadow: 0 6px 30px var(--shadow);
+    border: 1.5px solid var(--primary);
+    ">
+  <h3 style="color: var(--secondary); 
+           margin-bottom: 18px; 
+           font-size: 1.4rem;
+           text-align: center;
+           letter-spacing: 0.75px;
+           font-weight: 700;">
+    Latest Announcements
+  </h3>
+  <ul style="
+    list-style: disc inside;
+    color: #f7f7fa;
+    max-height: 160px;
+    overflow-y: auto;
+    font-size: 1.05rem;
+    padding-left: 10px;">
+    {% for notice in notices %}
+      <li style="margin-bottom: 7px; line-height: 1.6;">{{ notice }}</li>
+    {% else %}
+      <li>No announcements yet.</li>
+    {% endfor %}
+  </ul>
+  <p style="margin-top: 12px; text-align: right;">
+    <a href="{{ url_for('announcements') }}" 
+      style="color: var(--accent); font-weight: 600; text-decoration: none;">
+      View all &rarr;
+    </a>
+  </p>
 </section>
+
 
   </div>
 </section>
-<!-- Make Request Modal -->
-<div id="makeRequestModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn" id="closeModalBtn">&times;</span>
-        <h2>Make a Request</h2>
-        <textarea id="requestInput" placeholder="Enter what you want..." rows="5"></textarea>
-        <button id="sendRequestBtn" class="btn-primary">Send Request</button>
-    </div>
-</div>
-
     </div>
 
     <script>
@@ -324,54 +406,14 @@
         }
     </script>
 
-    <script>
-    const makeRequestBtn = document.getElementById('makeRequestBtn');
-    const makeRequestModal = document.getElementById('makeRequestModal');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-    const sendRequestBtn = document.getElementById('sendRequestBtn');
-    const requestInput = document.getElementById('requestInput');
+<!-- Removed duplicate makeRequestBtn modal script block to avoid redeclaration error. 
+     The dropdown-based request logic below is sufficient for handling requests. -->
 
-    // Open modal
-    makeRequestBtn.addEventListener('click', () => {
-        makeRequestModal.style.display = 'flex';
-        requestInput.focus();
+<script>
+    
+    document.getElementById('addToCartBtn').addEventListener('click', () => {
+        alert('Show cart summary or navigate to cart page.');
     });
-
-    // Close modal
-    closeModalBtn.addEventListener('click', () => {
-        makeRequestModal.style.display = 'none';
-        requestInput.value = '';
-    });
-
-    // Close modal if clicking outside modal content
-    window.addEventListener('click', (e) => {
-        if (e.target === makeRequestModal) {
-            makeRequestModal.style.display = 'none';
-            requestInput.value = '';
-        }
-    });
-
-    // Send request click
-    sendRequestBtn.addEventListener('click', () => {
-        const requestText = requestInput.value.trim();
-        if (requestText.length === 0) {
-            alert('Please enter a request.');
-            return;
-        }
-        // TODO: Send the request to backend via fetch or form submission here
-        alert(`Request sent: ${requestText}`);
-        makeRequestModal.style.display = 'none';
-        requestInput.value = '';
-    });
-
-    document.getElementById('loginBtn').addEventListener('click', () => {
-    alert('Show login modal or redirect to login page here.');
-});
-
-document.getElementById('addToCartBtn').addEventListener('click', () => {
-    alert('Show cart summary or navigate to cart page.');
-});
-
 </script>
 
 <script>
@@ -446,6 +488,62 @@ document.getElementById('addToCartBtn').addEventListener('click', () => {
         }
     });
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const makeRequestBtn = document.getElementById('makeRequestBtn');
+        const makeRequestContent = document.getElementById('makeRequestContent');
+        const requestForm = document.getElementById('requestForm');
+        const requestInput = document.getElementById('requestInput');
+
+        if (!makeRequestBtn || !makeRequestContent || !requestForm || !requestInput) {
+            console.error('One or more request elements not found');
+            return;
+        }
+
+        // Toggle dropdown with class instead of display property
+        makeRequestBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            makeRequestContent.classList.toggle('show');
+            if(makeRequestContent.classList.contains('show')) {
+                requestInput.focus();
+            }
+        });
+
+        // Close dropdown by removing class
+        document.addEventListener('click', (e) => {
+            if (!makeRequestBtn.contains(e.target) && !makeRequestContent.contains(e.target)) {
+                makeRequestContent.classList.remove('show');
+            }
+        });
+
+        requestForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const requestText = requestInput.value.trim();
+            if(!requestText) {
+                alert('Please enter a request');
+                return;
+            }
+            alert(`Request sent: ${requestText}`);
+            makeRequestContent.classList.remove('show');
+            requestInput.value = '';
+        });
+    });
+</script>
+
+<script>
+    
+    document.addEventListener("DOMContentLoaded", function () {
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", function () {
+      window.location.href = "/logout";
+    });
+  }
+});
+
+</script>
+
 
 <footer style="background: var(--header-bg); padding: 30px 5%; margin-top: 50px; box-shadow: 0 -2px 15px var(--shadow); color: var(--text); font-size: 0.95rem;">
   <div style="max-width: 1200px; margin: auto; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 20px;">

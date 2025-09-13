@@ -1,29 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Announcements - PassItOn</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <meta charset="UTF-8" />
+  <title>Announcements - PassItOn</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <!-- Include Font Awesome and Google Fonts as needed -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* Animated card styles */
+    .announcement-card {
+      position: relative;
+      margin: 10px auto;
+      max-width: 400px;
+      padding: 16px 20px;
+      border-radius: 16px;
+      background: var(--card-bg);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      font-family: 'Poppins', sans-serif;
+      color: var(--text);
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+      cursor: pointer;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .announcement-card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+    }
+    .announcement-icon {
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background-color: var(--primary);
+      color: white;
+    }
+    .announcement-content {
+      flex-grow: 1;
+      overflow: hidden;
+    }
+    .announcement-title {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 6px;
+    }
+    .announcement-time {
+      font-size: 0.8rem;
+      color: var(--secondary);
+    }
+    .announcement-desc {
+      font-size: 0.9rem;
+      color: var(--text);
+      opacity: 0.85;
+      overflow-wrap: anywhere;
+    }
+    .fade-bottom {
+      pointer-events: none;
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 420px;
+      height: 80px;
+      background: linear-gradient(to top, var(--bg), transparent);
+      z-index: 10;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>Announcements</h1>
-        <nav>
-            <a href="{{ url_for('home') }}">Home</a>
-        </nav>
-    </header>
-    <main class="announcements-main" style="padding: 20px; max-width: 700px; margin: auto;">
-        {% if notices %}
-            <ul>
-                {% for notice in notices %}
-                    <li style="margin-bottom: 12px; padding: 12px; background: var(--card-bg); border-radius: 8px; box-shadow: 0 1px 5px rgba(0,0,0,0.1);">
-                        {{ notice }}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No announcements yet.</p>
-        {% endif %}
-    </main>
+  {% include '_navbar.html' %}
+  
+  <main style="padding: 20px; max-width: 420px; margin: 30px auto 80px auto; position: relative;">
+    <h1 style="color: var(--primary); font-weight: 700; text-align: center; margin-bottom: 24px;">
+      Latest Announcements
+    </h1>
+  
+    {% if notices %}
+      <div id="announcementList">
+        {% for notice in notices %}
+          <article class="announcement-card" tabindex="0" role="button">
+            <div class="announcement-icon"><i class="fas fa-bullhorn"></i></div>
+            <div class="announcement-content">
+              <div class="announcement-title">Announcement</div>
+              <p class="announcement-desc">{{ notice }}</p>
+              <!-- Optional example timestamp: -->
+              <!-- <div class="announcement-time">5 minutes ago</div> -->
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+      <div class="fade-bottom"></div>
+    {% else %}
+      <p style="text-align:center; color: var(--text); font-size: 1rem; opacity: 0.75;">
+        No announcements yet.
+      </p>
+    {% endif %}
+  </main>
+
 </body>
 </html>

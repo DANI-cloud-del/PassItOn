@@ -1,45 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Sell Your Item - PassItOn</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sell Item - PassItOn</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <header>
-        <h1>Sell Your Item</h1>
-        <nav><a href="{{ url_for('home') }}">Home</a> | <a href="{{ url_for('deals') }}">Deals</a></nav>
-    </header>
-    <main style="padding: 20px; max-width: 600px; margin: auto;">
-        <form action="{{ url_for('sell_item') }}" method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 15px;">
-            <label>
-                Item Title
-                <input type="text" name="title" required placeholder="Enter item title" />
-            </label>
-            <label>
-                Description
-                <textarea name="description" rows="4" required placeholder="Add item details"></textarea>
-            </label>
-            <label>
-                Category
-                <select name="category" required>
-                    <option value="" disabled selected>Select category</option>
-                    <option value="Calculators">Calculators</option>
-                    <option value="Books">Books</option>
-                    <option value="Electronics">Electronics</option>
-                    <option value="Others">Others</option>
-                </select>
-            </label>
-            <label>
-                Price (₹)
-                <input type="number" name="price" min="0" step="1" required />
-            </label>
-            <label>
-                Upload Image
-                <input type="file" name="image" accept="image/*" required />
-            </label>
-            <button type="submit" class="btn-primary">Submit Item</button>
-        </form>
+    {% include '_navbar.html' %}
+
+    <main class="sell-item-main" style="max-width: 600px; margin: 40px auto; padding: 20px; background: var(--card-bg); border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.05); font-family: 'Poppins', sans-serif;">
+      <h1 style="color: var(--primary); margin-bottom: 20px;">Sell Your Item</h1>
+  
+      <form action="{{ url_for('sell_item') }}" method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 16px;">
+        
+        <label>
+          <span style="font-weight: 600; margin-bottom: 6px; display: block;">Item Title</span>
+          <input type="text" name="title" placeholder="Enter item title" required 
+            style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid var(--primary);
+                   font-size: 1rem; color: var(--text); box-sizing: border-box;" />
+        </label>
+  
+        <label>
+          <span style="font-weight: 600; margin-bottom: 6px; display: block;">Description</span>
+          <textarea name="description" rows="5" placeholder="Add item details" required
+            style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid var(--primary);
+                   font-size: 1rem; color: var(--text); resize: vertical; box-sizing: border-box;"></textarea>
+        </label>
+        
+        <label>
+          <span style="font-weight: 600; margin-bottom: 6px; display: block;">Category</span>
+          <select name="category" required
+            style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid var(--primary);
+                   font-size: 1rem; color: var(--text); box-sizing: border-box;">
+            <option value="" disabled selected>Select category</option>
+            <option>Calculators</option>
+            <option>Books</option>
+            <option>Electronics</option>
+            <option>Others</option>
+          </select>
+        </label>
+  
+        <label>
+          <span style="font-weight: 600; margin-bottom: 6px; display: block;">Price (₹)</span>
+          <input type="number" name="price" min="0" step="1" required
+            style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid var(--primary);
+                   font-size: 1rem; color: var(--text); box-sizing: border-box;" />
+        </label>
+  
+        <label>
+          <span style="font-weight: 600; margin-bottom: 6px; display: block;">Upload Image</span>
+  
+  
+          <!-- Styled Drag & Drop Upload Area -->
+  
+          <div id="fileUploadArea" 
+               style="border: 2px dashed var(--primary); border-radius: 15px; padding: 30px; text-align: center; cursor: pointer; color: var(--primary); font-weight: 500; user-select: none;">
+            <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; margin-bottom: 14px;"></i>
+            <p>Drag and drop image here or click to select file</p>
+            <input type="file" name="image" id="fileInput" accept="image/*" required 
+                   style="display: none;" />
+            <p id="fileName" style="margin-top: 10px; font-size: 0.9rem; color: var(--text);"></p>
+          </div>
+  
+        </label>
+  
+        <button type="submit" class="btn-primary" style="margin-top: 10px;">Submit Item</button>
+      </form>
     </main>
+  
+    <script>
+      const fileUploadArea = document.getElementById('fileUploadArea');
+      const fileInput = document.getElementById('fileInput');
+      const fileNameDisplay = document.getElementById('fileName');
+  
+      // Clicking on area opens hidden file input
+      fileUploadArea.addEventListener('click', () => fileInput.click());
+  
+      // Update file name display when file selected
+      fileInput.addEventListener('change', () => {
+        if(fileInput.files.length > 0) {
+          fileNameDisplay.textContent = fileInput.files[0].name;
+        } else {
+          fileNameDisplay.textContent = '';
+        }
+      });
+  
+      // Highlight on dragover
+      fileUploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        fileUploadArea.style.backgroundColor = "rgba(111, 66, 237, 0.1)";
+      });
+      fileUploadArea.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        fileUploadArea.style.backgroundColor = "transparent";
+      });
+      fileUploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        fileUploadArea.style.backgroundColor = "transparent";
+  
+        if(e.dataTransfer.files.length > 0) {
+          fileInput.files = e.dataTransfer.files;
+          fileNameDisplay.textContent = fileInput.files[0].name;
+        }
+      });
+    </script>
 </body>
 </html>

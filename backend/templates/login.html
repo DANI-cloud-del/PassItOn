@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login - PassItOn</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main style="max-width: 380px; margin: 80px auto; padding: 20px; background: var(--card-bg); border-radius: 16px; box-shadow: 0 6px 24px rgba(0,0,0,0.1); font-family: 'Poppins', sans-serif;">
+    <h2 style="color: var(--primary); text-align: center; margin-bottom: 25px;">Welcome Back</h2>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul style="color: red; margin-bottom: 12px;">
+          {% for msg in messages %}
+            <li>{{ msg }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    <form method="POST" action="{{ url_for('login') }}" style="display: flex; flex-direction: column; gap: 16px;">
+      <input type="text" name="username" placeholder="Username" required autocomplete="username" style="padding: 10px; border-radius: 8px; border: 1.5px solid var(--primary); font-size: 1rem;">
+      <input type="password" name="password" placeholder="Password" required autocomplete="current-password" style="padding: 10px; border-radius: 8px; border: 1.5px solid var(--primary); font-size: 1rem;">
+      <button type="submit" class="btn-primary" style="padding: 12px; border-radius: 25px; font-weight: 600; background: var(--primary); color: white; cursor: pointer;">Login</button>
+    </form>
+    <p style="text-align: center; margin-top: 15px;">Don't have an account? <a href="{{ url_for('register') }}" style="color: var(--accent); font-weight: 600;">Register here</a></p>
+  </main>
+  
+</body>
+</html>

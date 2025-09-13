@@ -1,5 +1,10 @@
+import json
+import os
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask import flash
 from flask import Flask, render_template, request, redirect, url_for, session
 import os
+from flask import session, request, redirect, url_for, render_template, flash
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 app.secret_key = os.urandom(24)  # For session management
@@ -19,7 +24,13 @@ def home():
         "Anyone has extra notebooks to share?"
     ]
     
-    return render_template('home.html', user=user, top_deals=top_deals, notices=notices)
+    show_motto = session.pop('show_motto', False)  # pops and removes 'show_motto'
+    
+    return render_template('home.html',
+                           user=user,
+                           top_deals=top_deals,
+                           notices=notices,
+                           show_motto=show_motto)
 
 @app.route('/announcements')
 def announcements():
@@ -63,5 +74,63 @@ def add_to_cart():
     # For now, simple confirmation
     return f"Added <b>{item_name}</b> to cart! (Implement cart logic)"
 
+USERS_FILE = 'users.json'
+
+def load_users():
+    if not os.path.exists(USERS_FILE):
+        return {}
+    with open(USERS_FILE, 'r') as f:
+        return json.load(f)
+
+def save_users(users):
+    with open(USERS_FILE, 'w') as f:
+        json.dump(users, f, indent=2)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username'].strip()
+        password = request.form['password']
+        email = request.form.get('email', '').strip() or None
+
+        users = load_users()
+        if username in users:
+            flash('Username already taken, choose another')
+            return render_template('register.html')
+
+        password_hash = generate_password_hash(password)
+        users[username] = {
+            'password_hash': password_hash,
+            'email': email
+        }
+        save_users(users)
+
+        flash('Registration successful! Please log in.')
+        return redirect(url_for('login'))
+    return render_template('register.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username'].strip()
+        password = request.form['password']
+
+        users = load_users()
+        user = users.get(username)
+        if user and check_password_hash(user['password_hash'], password):
+            session['username'] = username
+            session['show_motto'] = True  # Set flag to show motto once
+            flash(f'Welcome, {username}!')
+            return redirect(url_for('home'))
+        else:
+            flash('Invalid username or password')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    flash('You have been logged out')
+    return redirect(url_for('home'))
 
 app.run(debug=True)
