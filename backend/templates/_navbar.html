@@ -6,12 +6,14 @@
 </div>
 
     
-    <div class="search-container" style="position: relative; max-width: 500px; flex: 1;">
-        <input type="text" class="search-bar" placeholder="Search for items...">
-        <button class="filter-btn" title="Filter Search" aria-label="Filter Search">
-            <i class="fas fa-filter"></i>
-        </button>
-    </div>
+    <div class="search-container" style="position: relative; max-width: 500px; flex:1;">
+    <input id="searchInput" type="text" class="search-bar" placeholder="Search items..." autocomplete="off"/>
+    <button class="filter-btn" title="Filter Search">
+        <i class="fas fa-filter"></i>
+    </button>
+    <ul id="searchSuggestions" style="position:absolute; background:white; list-style:none; margin:0; padding:0; width:100%; max-height:200px; overflow-y:auto; display:none; border:1px solid #ccc; border-radius:0 0 6px 6px; z-index:50;"></ul>
+</div>
+
 
     <div class="nav-icons">
         <button class="icon-btn" id="themeToggle" title="Toggle Theme">
@@ -232,3 +234,93 @@
                 }
             })});
   </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('searchInput');
+    const suggestionsBox = document.getElementById('searchSuggestions');
+
+    searchInput.addEventListener('input', async () => {
+        const query = searchInput.value.trim();
+        if (query.length === 0) {
+            suggestionsBox.style.display = 'none';
+            suggestionsBox.innerHTML = '';
+            return;
+        }
+
+        try {
+            const res = await fetch(`/search_suggestions?q=${encodeURIComponent(query)}`);
+            const suggestions = await res.json();
+
+            if (suggestions.length === 0) {
+                suggestionsBox.style.display = 'none';
+                suggestionsBox.innerHTML = '';
+                return;
+            }
+
+            suggestionsBox.innerHTML = '';
+            suggestions.forEach(s => {
+                const li = document.createElement('li');
+                li.textContent = s.title;
+                li.style.padding = '8px';
+                li.style.cursor = 'pointer';
+                li.addEventListener('click', () => {
+                    window.location.href = `/deals?search=${encodeURIComponent(s.title)}`;
+                });
+                suggestionsBox.appendChild(li);
+            });
+            suggestionsBox.style.display = 'block';
+        } catch (err) {
+            console.error('Search fetch error:', err);
+        }
+    });
+
+    // Hide suggestions on outside click
+    document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+            suggestionsBox.style.display = 'none';
+        }
+    });
+
+    // On enter key press, go to search results
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const val = searchInput.value.trim();
+            if(val.length > 0) {
+                window.location.href = `/deals?search=${encodeURIComponent(val)}`;
+            }
+        }
+    });
+});
+
+</script>
+
+<div class="filter-dropdown" style="position: absolute; top: 40px; right: 0; background: white; border: 1px solid #ccc; border-radius: 6px; display: none; z-index: 100;">
+  <div id="sortOldest" style="padding: 8px; cursor: pointer;">Sort by Oldest</div>
+  <div id="sortNewest" style="padding: 8px; cursor: pointer;">Sort by Newest</div>
+</div>
+
+<script>
+const filterBtn = document.querySelector('.filter-btn');
+const filterDropdown = document.querySelector('.filter-dropdown');
+
+filterBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    filterDropdown.style.display = filterDropdown.style.display === 'block' ? 'none' : 'block';
+});
+
+document.addEventListener('click', () => {
+    filterDropdown.style.display = 'none';
+});
+
+document.getElementById('sortOldest').addEventListener('click', () => {
+    const search = encodeURIComponent(document.getElementById('searchInput').value.trim());
+    window.location.href = `/deals?search=${search}&sort=oldest`;
+});
+
+document.getElementById('sortNewest').addEventListener('click', () => {
+    const search = encodeURIComponent(document.getElementById('searchInput').value.trim());
+    window.location.href = `/deals?search=${search}&sort=newest`;
+});
+</script>

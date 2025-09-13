@@ -53,6 +53,19 @@ def home():
                            notices=notices,
                            show_motto=show_motto)
 
+@app.route('/search_suggestions')
+def search_suggestions():
+    query = request.args.get('q', '').lower()
+    deals = load_deals()
+
+    # Simple filter: find deals whose title contains the query
+    results = [d for d in deals if query in d['title'].lower()]
+
+    # Return minimal info for suggestions
+    suggestions = [{'id': d['id'], 'title': d['title']} for d in results[:10]]  # limit to 10
+    return jsonify(suggestions)
+
+
 @app.route('/announcements')
 def announcements():
     notices = [
@@ -68,11 +81,23 @@ def announcements():
 
 @app.route('/deals')
 def deals():
-    all_deals = load_deals()
-    deals_by_category = {'All Items': all_deals}
-    return render_template('deals.html', 
-                         deals_by_category=deals_by_category, 
-                         current_user=session.get('username'))
+    # supports optional params: search, sort
+    search = request.args.get('search', '').lower()
+    sort = request.args.get('sort', '')  # e.g., 'oldest' or 'newest'
+
+    deals = load_deals()
+    if search:
+        deals = [d for d in deals if search in d['title'].lower()]
+
+    if sort == 'oldest':
+        deals.sort(key=lambda d: d.get('timestamp', ''), reverse=False)
+    elif sort == 'newest':
+        deals.sort(key=lambda d: d.get('timestamp', ''), reverse=True)
+
+    deals_by_category = {'All Items': deals}
+    return render_template('deals.html',
+                           deals_by_category=deals_by_category,
+                           current_user=session.get('username'))
 
 @app.route('/delete-deal/<deal_id>', methods=['POST'])
 def delete_deal(deal_id):
@@ -169,8 +194,10 @@ def sell_item():
             'price': price,
             'description': description,
             'image': image_filename,
-            'creator': session['username']
-        }
+            'creator': session['username'],
+            'timestamp': datetime.datetime.utcnow().isoformat()
+}
+
         deals.append(new_deal)
 
         # Save updated deals
