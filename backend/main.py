@@ -2,13 +2,13 @@ import json
 import os
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from flask import flash
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask import session, request, redirect, url_for, render_template, flash
 import datetime
 from flask import jsonify
-
-
+from datetime import datetime
 DEALS_FILE = 'deals.json'
 REQUESTS_FILE = 'requests.json'
 
@@ -289,9 +289,9 @@ def save_requests(requests):
     with open(REQUESTS_FILE, 'w') as f:
         json.dump(requests, f, indent=2)
 
-# app.run(debug=True)
+app.run(debug=True)
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+# if __name__ == "__main__":
+#     port = int(os.environ.get("PORT", 5000))
+#     app.run(host="0.0.0.0", port=port)
 

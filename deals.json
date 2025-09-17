@@ -15,5 +15,15 @@
     "image": "9aeb760dac384b6aa714f9271d87cfcc.png",
     "creator": "DANI",
     "timestamp": "2025-09-13T19:16:26.680290"
+  },
+  {
+    "id": "b60b2c16-8c3c-4623-8c92-94bb1992451b",
+    "title": "calculator",
+    "description": "fx 4450",
+    "price": 500.0,
+    "category": "Calculators",
+    "image": "calculator.png",
+    "creator": "DANI",
+    "created_at": "2025-09-17T22:57:27.326201"
   }
 ]
