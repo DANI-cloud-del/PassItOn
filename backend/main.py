@@ -289,7 +289,7 @@ def save_requests(requests):
     with open(REQUESTS_FILE, 'w') as f:
         json.dump(requests, f, indent=2)
 
-app.run(debug=True)
+# app.run(debug=True)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
